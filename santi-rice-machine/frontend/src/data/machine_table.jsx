@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from "react";
+import "../css/MachineTable.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { FaTrash, FaCogs } from "react-icons/fa";
 
 const MachineTable = () => {
+
   const API_URL = "http://localhost/santi-rice-machine/backend/get_machine_table.php";
 
   const [machines, setMachines] = useState([]);
-  const [editId, setEditId] = useState(null);
-  const [editData, setEditData] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [deleteId, setDeleteId] = useState(null);
 
-  // ===============================
-  // FETCH DATA
-  // ===============================
+  const rowsPerPage = 10;
+
+  // ================= FETCH DATA
   const fetchMachines = async () => {
     try {
       const res = await fetch(API_URL);
       const data = await res.json();
       setMachines(data);
     } catch (error) {
-      console.error("Fetch Error:", error);
+      toast.error("Failed to load machines");
     }
   };
 
@@ -24,121 +29,179 @@ const MachineTable = () => {
     fetchMachines();
   }, []);
 
-  // ===============================
-  // EDIT BUTTON
-  // ===============================
-  const handleEdit = (machine) => {
-    setEditId(machine.id);
-    setEditData(machine);
-  };
-
-  // ===============================
-  // INPUT CHANGE
-  // ===============================
-  const handleChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
-
-  // ===============================
-  // UPDATE MACHINE
-  // ===============================
-  const handleUpdate = async () => {
-    try {
-      await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editData),
-      });
-
-      setEditId(null);
-      fetchMachines();
-    } catch (error) {
-      console.error("Update Error:", error);
-    }
-  };
-
-  // ===============================
-  // DELETE MACHINE
-  // ===============================
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this machine?")) {
-      return;
-    }
+  // ================= DELETE MACHINE
+  const confirmDelete = async () => {
 
     try {
-      await fetch(`${API_URL}?delete=${id}`);
+      await fetch(`${API_URL}?delete=${deleteId}`);
+
+      toast.success("Machine deleted successfully");
+
+      setDeleteId(null);
       fetchMachines();
+
     } catch (error) {
-      console.error("Delete Error:", error);
+
+      toast.error("Delete failed");
+
     }
+
   };
+
+  // ================= DATE FORMAT
+  const formatDate = (date) => {
+
+    const d = new Date(date);
+
+    return d.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+  };
+
+  // ================= PAGINATION
+  const indexLast = currentPage * rowsPerPage;
+  const indexFirst = indexLast - rowsPerPage;
+
+  const currentMachines = machines.slice(indexFirst, indexLast);
+
+  const totalPages = Math.ceil(machines.length / rowsPerPage);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Machine Table</h2>
 
-      <table border="1" width="100%" cellPadding="10">
-        <thead style={{ backgroundColor: "#28a745", color: "white" }}>
-          <tr>
-            <th>Machine Code</th>
-            <th>Description</th>
-            <th>Created At</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+    <div className="machine-wrapper-table">
 
-        <tbody>
-          {machines.length === 0 ? (
+      <ToastContainer position="top-right" />
+
+      <div className="table-card">
+
+        <div className="table-header">
+
+          <h2><FaCogs /> Machine Management</h2>
+
+          <span>Total Machines : {machines.length}</span>
+
+        </div>
+
+        <table className="premium-table">
+
+          <thead>
+
             <tr>
-              <td colSpan="5" align="center">
-                No Data Found
-              </td>
+              <th>SL No</th>
+              <th>Machine Code</th>
+              <th>Machine Description</th>
+              <th>Created On</th>
+              <th>Action</th>
             </tr>
-          ) : (
-            machines.map((machine) => (
-              <tr key={machine.id}>
-                
 
-                {editId === machine.id ? (
-                  <>
-                    <td>
-                      <input
-                        name="machine_code"
-                        value={editData.machine_code || ""}
-                        onChange={handleChange}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        name="machine_description"
-                        value={editData.machine_description || ""}
-                        onChange={handleChange}
-                      />
-                    </td>
-                    <td>{machine.created_at}</td>
-                    <td>
-                      <button onClick={handleUpdate}>Save</button>{" "}
-                      <button onClick={() => setEditId(null)}>Cancel</button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td>{machine.machine_code}</td>
-                    <td>{machine.machine_description}</td>
-                    <td>{machine.created_at}</td>
-                    <td>
-                      <button onClick={() => handleDelete(machine.id)}>
-                        Delete
-                      </button>
-                    </td>
-                  </>
-                )}
+          </thead>
+
+          <tbody>
+
+            {currentMachines.length === 0 ? (
+
+              <tr>
+                <td colSpan="5" className="empty">
+                  No Machines Found
+                </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+
+            ) : (
+
+              currentMachines.map((machine, index) => (
+
+                <tr key={machine.id}>
+
+                  <td>{indexFirst + index + 1}</td>
+                  <td>
+                    <span className="code">{machine.machine_code?.toUpperCase()}</span>
+                  </td>
+                  <td>
+                    {machine.machine_description?.toUpperCase()}
+                  </td>
+                  <td>
+                    <span className="date">{formatDate(machine.created_at)}</span>
+                  </td>
+                  <td>
+                    <button
+                      className="delete-btn"
+                      onClick={() => setDeleteId(machine.id)}
+                    >
+                     <FaTrash /> Delete
+                    </button>
+                  </td>
+
+                </tr>
+
+              ))
+
+            )}
+
+          </tbody>
+
+        </table>
+
+        {/* PAGINATION */}
+
+        <div className="pagination">
+
+          {[...Array(totalPages)].map((_, i) => (
+
+            <button
+              key={i}
+              className={currentPage === i + 1 ? "active" : ""}
+              onClick={() => setCurrentPage(i + 1)}
+            >
+              {i + 1}
+            </button>
+
+          ))}
+
+        </div>
+
+      </div>
+
+      {/* DELETE MODAL */}
+
+      {deleteId && (
+
+        <div className="modal-overlay-machine">
+
+          <div className="modal-machine">
+
+            <h3>Delete Machine</h3>
+
+            <p>Are you sure you want to delete this machine?</p>
+
+            <div className="modal-actions-machine">
+
+              <button
+                className="cancel-machine"
+                onClick={() => setDeleteId(null)}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="confirm-machine"
+                onClick={confirmDelete}
+              >
+                Delete
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
     </div>
+
   );
 };
 

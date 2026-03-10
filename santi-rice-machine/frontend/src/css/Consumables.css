@@ -1,0 +1,105 @@
+/* BACKGROUND SAME AS MACHINE PAGE */
+
+.consumable-container{
+    height:80vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(135deg,#5f7dd8,#7b4bb7);
+    border-radius:10px;
+}
+
+/* CARD */
+
+.consumable-card{
+    background:#f2f3f7;
+    padding:40px;
+    width:420px;
+    border-radius:25px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+}
+
+/* TITLE */
+
+.consumable-card h2{
+    margin-bottom:20px;
+    color:#333;
+}
+
+/* LABEL */
+
+.consumable-card label{
+    font-size:14px;
+    color:#555;
+}
+
+/* INPUT */
+
+.consumable-card input{
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    margin-bottom:25px;
+    border-radius:12px;
+    border:1px solid #ccc;
+    font-size:14px;
+}
+
+/* BUTTON GROUP */
+
+.btn-group{
+    display:flex;
+    gap:15px;
+}
+
+/* SAVE BUTTON */
+
+.save-btn{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,#5a6ed6,#4e5ed1);
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+
+/* CLEAR BUTTON */
+
+.clear-btn{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background:#e6e6e6;
+    cursor:pointer;
+}
+
+/* HOVER */
+
+.save-btn:hover{
+    opacity:0.9;
+}
+
+.clear-btn:hover{
+    background:#d9d9d9;
+}
+
+
+
+
+
+
+.label-icon{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.icon{
+  color: #2c7be5;
+  font-size: 16px;
+}

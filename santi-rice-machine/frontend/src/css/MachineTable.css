@@ -1,0 +1,248 @@
+/* PAGE WRAPPER */
+
+.machine-wrapper-table{
+ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+min-height:100vh;
+padding:5px;
+font-family:"Inter","Segoe UI",sans-serif;
+}
+
+/* MAIN CARD */
+
+.table-card{
+background:white;
+border-radius:14px;
+padding:28px;
+box-shadow:0 8px 35px rgba(0,0,0,0.06);
+border:1px solid #e6eaf1;
+}
+
+/* HEADER */
+
+.table-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+border-bottom:1px solid #cbd6eb;
+padding-bottom:15px;
+}
+
+.table-header h2{
+margin:0;
+font-size:22px;
+font-weight:600;
+color:#1e293b;
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.table-header span{
+background:#b7c3e9;
+color:#4338ca;
+padding:6px 14px;
+border-radius:6px;
+font-size:13px;
+font-weight:500;
+}
+
+/* TABLE */
+
+.premium-table{
+width:100%;
+border-collapse:collapse;
+}
+
+/* HEADER */
+
+.premium-table th{
+text-align:left;
+padding:14px 16px;
+font-size:13px;
+font-weight:600;
+color:#0f0f0f;
+text-transform:uppercase;
+letter-spacing:0.5px;
+border-bottom:1px solid #353638;
+border-right:1px solid #353638;
+}
+
+.premium-table th:last-child{
+border-right:none;
+}
+
+/* ROWS */
+
+.premium-table tbody tr{
+transition:all 0.2s ease;
+border-bottom:1px solid #353638;
+}
+
+.premium-table tbody tr:hover{
+background:#f8fafc;
+}
+
+/* CELLS */
+
+.premium-table td{
+padding:10px;
+font-size:14px;
+color:#334155;
+border-right:1px solid #353638;
+border-bottom:1px solid #353638;
+}
+
+.premium-table td:last-child{
+border-right:none;
+}
+
+/* SL COLUMN */
+
+.premium-table td:first-child{
+font-weight:600;
+color:#64748b;
+}
+
+/* MACHINE CODE BADGE */
+
+.code{
+background:#353638;
+color:white;
+padding:5px 10px;
+border-radius:6px;
+font-size:13px;
+font-weight:500;
+}
+
+/* DESCRIPTION */
+
+.desc{
+color:#475569;
+font-size:14px;
+}
+
+/* DATE */
+
+.date{
+background:#c1d5e9;
+padding:1px 2px;
+border-radius:6px;
+font-size:12px;
+color:#475569;
+}
+
+/* DELETE BUTTON */
+
+.delete-btn{
+display:inline-flex;
+align-items:center;
+gap:6px;
+border:none;
+background:#fee2e2;
+color:#b91c1c;
+padding:7px 12px;
+border-radius:6px;
+cursor:pointer;
+font-size:13px;
+font-weight:500;
+transition:0.2s;
+}
+
+.delete-btn:hover{
+background:#dc2626;
+color:white;
+}
+
+/* PAGINATION */
+
+.pagination{
+margin-top:25px;
+display:flex;
+justify-content:flex-end;
+gap:8px;
+}
+
+.pagination button{
+border:none;
+padding:7px 12px;
+background:#f1f5f9;
+border-radius:6px;
+cursor:pointer;
+font-size:13px;
+transition:0.2s;
+}
+
+.pagination button:hover{
+background:#e2e8f0;
+}
+
+.pagination button.active{
+background:#2563eb;
+color:white;
+}
+
+/* EMPTY ROW */
+
+.empty{
+text-align:center;
+padding:40px;
+font-size:14px;
+color:#94a3b8;
+}
+
+/* MODAL */
+
+.modal-overlay-machine{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.45);
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.modal-machine{
+background:white;
+border-radius:12px;
+padding:30px;
+width:350px;
+box-shadow:0 15px 40px rgba(0,0,0,0.2);
+}
+
+.modal-machine h3{
+margin-top:0;
+font-size:18px;
+color:#1e293b;
+}
+
+.modal-machine p{
+font-size:14px;
+color:#64748b;
+}
+
+.modal-actions-machine{
+margin-top:25px;
+display:flex;
+gap:10px;
+}
+
+.cancel-machine{
+flex:1;
+border:none;
+background:#f1f5f9;
+padding:9px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.confirm-machine{
+flex:1;
+border:none;
+background:#dc2626;
+color:white;
+padding:9px;
+border-radius:6px;
+cursor:pointer;
+}
+

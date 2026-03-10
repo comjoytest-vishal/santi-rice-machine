@@ -1,10 +1,25 @@
 import React, { useState } from "react";
+import "../css/Consumables.css";
+
+/* ICON IMPORT */
+import { FaBoxOpen } from "react-icons/fa";
+import { FiTag, FiXCircle } from "react-icons/fi";
+
+/* TOAST */
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Consumables = () => {
+
   const [consumable, setConsumable] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (consumable.trim() === "") {
+      toast.warning("Please enter consumable name");
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -14,64 +29,84 @@ const Consumables = () => {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ consumable_name: consumable })
+          body: JSON.stringify({
+            consumable_name: consumable
+          })
         }
       );
 
       const result = await response.json();
-      alert(result.message);
 
       if (result.success) {
+        toast.success(result.message);
         setConsumable("");
+      } else {
+        toast.error(result.message);
       }
 
     } catch (error) {
       console.error("Error:", error);
-      alert("Server error");
+      toast.error("Server error");
     }
   };
 
-  // ✅ NEW FUNCTION TO OPEN PHP PAGE
-  const openConsumableTable = () => {
-    window.open("http://localhost/santi-rice-machine/backend/get_consumable.php", "_blank");
+  /* CLEAR BUTTON */
+  const handleClear = () => {
+    setConsumable("");
+    toast.info("Input cleared");
   };
 
   return (
-    <div>
-      <h2>Add Consumable</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Enter Consumable"
-          value={consumable}
-          onChange={(e) => setConsumable(e.target.value)}
-          required
-        />
+    <div className="consumable-container">
 
-        <br /><br />
+      <div className="consumable-card">
 
-        <button type="submit">Save</button>
-      </form>
+        <form onSubmit={handleSubmit}>
 
-      {/* ✅ NEW BUTTON */}
-      <br />
-      <button
-        type="button"
-        onClick={openConsumableTable}
-        style={{
-          marginTop: "15px",
-          padding: "10px 15px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer"
-        }}
-      >
-        View Consumables
-      </button>
+          {/* LABEL WITH ICON */}
+          <label className="label-icon">
+            <FiTag className="icon" /> Consumable Name
+          </label>
+
+          <input
+            type="text"
+            placeholder="Enter consumable name (e.g., Rubber)"
+            value={consumable}
+            onChange={(e) => setConsumable(e.target.value)}
+            required
+          />
+
+          <div className="btn-group">
+
+            <button type="submit" className="save-btn">
+              <FaBoxOpen /> Save Consumable
+            </button>
+
+            <button
+              type="button"
+              className="clear-btn"
+              onClick={handleClear}
+            >
+              <FiXCircle />
+              <span> Clear</span>
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+      {/* TOAST CONTAINER */}
+      <ToastContainer
+        position="top-right"
+        autoClose={2500}
+        theme="colored"
+      />
+
     </div>
+
   );
 };
 

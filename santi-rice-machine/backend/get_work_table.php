@@ -46,7 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         work = ?, 
         notes = ?, 
         staff = ?, 
-        work_date = ?
+        work_date = ?,
+        created_at = NOW()
         WHERE id = ?");
 
     $stmt->bind_param(
@@ -79,6 +80,13 @@ $result = $conn->query("SELECT * FROM work_entry ORDER BY id DESC");
 $data = [];
 
 while ($row = $result->fetch_assoc()) {
+
+    if($row['created_at'] != null){
+        $row['edited'] = true;
+    }else{
+        $row['edited'] = false;
+    }
+
     $data[] = $row;
 }
 
