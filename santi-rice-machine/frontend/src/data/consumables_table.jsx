@@ -18,6 +18,24 @@ const ConsumablesTable = () => {
   const API_URL = "http://localhost/santi-rice-machine/backend/get_consumable_table.php";
 
   /* =========================
+     DATE FORMAT FUNCTION
+  ========================= */
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+
+    const date = new Date(dateString);
+
+    const options = {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    };
+
+    return date.toLocaleDateString("en-GB", options);
+  };
+
+  /* =========================
      FETCH DATA
   ========================= */
 
@@ -149,17 +167,15 @@ const ConsumablesTable = () => {
 
                 <td>
                   <span className="badge">
-                    {item.consumable_name}
+                    {item.consumable_name?.toUpperCase()}
                   </span>
                 </td>
 
-                {/* DATE BADGE */}
+                {/* DATE FORMAT USING FUNCTION */}
 
                 <td>
                   <span className="date-badge">
-                    {item.created_at
-                      ? new Date(item.created_at).toLocaleDateString()
-                      : "N/A"}
+                    {formatDate(item.created_at)}
                   </span>
                 </td>
 
