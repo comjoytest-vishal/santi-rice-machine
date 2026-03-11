@@ -1,158 +1,283 @@
 import React, { useEffect, useState } from "react";
+import "../css/subConsumableWorkTable.css";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { FaTrash, FaBoxOpen } from "react-icons/fa";
 
 const SubConsumableWorkTable = () => {
-  const [data, setData] = useState([]);
-  const [editId, setEditId] = useState(null);
-  const [editValue, setEditValue] = useState("");
 
-  const API_URL =
-    "http://localhost/santi-rice-machine/backend/get_sub_consumable_work.php";
+const [data,setData]=useState([]);
+const [currentPage,setCurrentPage]=useState(1);
 
-  /* ======================
-     FETCH DATA
-  ====================== */
-  const fetchData = async () => {
-    try {
-      const res = await fetch(API_URL);
-      const result = await res.json();
+const [showConfirm,setShowConfirm]=useState(false);
+const [deleteId,setDeleteId]=useState(null);
 
-      if (result.success) {
-        setData(result.data);
-      } else {
-        console.log(result.message);
-      }
-    } catch (error) {
-      console.error("Fetch error:", error);
-    }
-  };
+const rowsPerPage=5;
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+const API_URL="http://localhost/santi-rice-machine/backend/get_sub_consumable_work.php";
 
-  /* ======================
-     START EDIT
-  ====================== */
-  const startEdit = (item) => {
-    setEditId(item.id);
-    setEditValue(item.sub_name);
-  };
+/* DATE FORMAT */
 
-  /* ======================
-     CANCEL EDIT
-  ====================== */
-  const cancelEdit = () => {
-    setEditId(null);
-    setEditValue("");
-  };
+const formatDate=(dateString)=>{
 
-  /* ======================
-     SAVE EDIT
-  ====================== */
-  const saveEdit = async (id) => {
-    if (!editValue.trim()) {
-      alert("Sub name cannot be empty");
-      return;
-    }
+const date=new Date(dateString);
 
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: id,
-          sub_name: editValue,
-        }),
-      });
+return date.toLocaleDateString("en-GB",{
+day:"2-digit",
+month:"short",
+year:"numeric"
+});
 
-      const result = await response.json();
+};
 
-      if (result.success) {
-        alert("Updated successfully");
-        setEditId(null);
-        setEditValue("");
-        fetchData();
-      } else {
-        alert(result.message || "Update failed");
-      }
-    } catch (error) {
-      console.error("Update error:", error);
-      alert("Server error");
-    }
-  };
+/* FETCH */
 
-  return (
-    <div style={{ width: "900px", margin: "40px auto", fontFamily: "Arial" }}>
-      <h2>Sub Consumable Work Table</h2>
+const fetchData=async()=>{
 
-      <table
-        border="1"
-        cellPadding="10"
-        style={{ width: "100%", borderCollapse: "collapse" }}
-      >
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Parent Consumable</th>
-            <th>Sub Consumable</th>
-            <th>Created</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+try{
 
-        <tbody>
-          {data.length === 0 ? (
-            <tr>
-              <td colSpan="5" align="center">
-                No Data Found
-              </td>
-            </tr>
-          ) : (
-            data.map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
+const res=await fetch(API_URL);
+const result=await res.json();
 
-                <td>{item.parent_name}</td>
+if(result.success){
 
-                <td>
-                  {editId === item.id ? (
-                    <input
-                      type="text"
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                    />
-                  ) : (
-                    item.sub_name
-                  )}
-                </td>
+setData(result.data);
 
-                <td>{item.created_at}</td>
+}
 
-                <td>
-                  {editId === item.id ? (
-                    <>
-                      <button onClick={() => saveEdit(item.id)}>Save</button>
+}catch(error){
 
-                      <button
-                        onClick={cancelEdit}
-                        style={{ marginLeft: "5px" }}
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <button onClick={() => startEdit(item)}>Edit</button>
-                  )}
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+console.error(error);
+
+}
+
+};
+
+useEffect(()=>{
+fetchData();
+},[]);
+
+/* CONFIRM DELETE */
+
+const confirmDelete=(id)=>{
+
+setDeleteId(id);
+setShowConfirm(true);
+
+};
+
+/* DELETE */
+
+const handleDelete=async()=>{
+
+try{
+
+const response=await fetch(API_URL,{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+delete_id:deleteId
+})
+
+});
+
+const result=await response.json();
+
+if(result.success){
+
+toast.success("Deleted Successfully");
+
+fetchData();
+
+}else{
+
+toast.error("Delete Failed");
+
+}
+
+setShowConfirm(false);
+
+}catch(error){
+
+toast.error("Server Error");
+
+}
+
+};
+
+/* PAGINATION */
+
+const indexOfLastRow=currentPage*rowsPerPage;
+const indexOfFirstRow=indexOfLastRow-rowsPerPage;
+
+const currentRows=data.slice(indexOfFirstRow,indexOfLastRow);
+
+const totalPages=Math.ceil(data.length/rowsPerPage);
+
+return(
+
+<div className="scw-container">
+
+<ToastContainer position="top-right"/>
+
+<div className="scw-header">
+
+<h2>
+<FaBoxOpen/> Sub Consumable Work Table
+</h2>
+
+<span className="scw-total">
+Total Items : {data.length}
+</span>
+
+</div>
+
+<table className="scw-table">
+
+<thead>
+
+<tr>
+<th>SL NO</th>
+<th>PARENT CONSUMABLE</th>
+<th>SUB CONSUMABLE</th>
+<th>CREATED ON</th>
+<th>ACTION</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{currentRows.length===0 ? (
+
+<tr>
+<td colSpan="5" className="scw-no-data">
+No Data Found
+</td>
+</tr>
+
+):(
+
+currentRows.map((item,index)=>(
+
+<tr key={item.id}>
+
+<td>{indexOfFirstRow+index+1}</td>
+
+<td>
+<span className="scw-badge">
+{item.parent_name}
+</span>
+</td>
+
+<td>
+<span className="scw-badge-dark">
+{item.sub_name}
+</span>
+</td>
+
+<td>
+<span className="scw-date">
+{formatDate(item.created_at)}
+</span>
+</td>
+
+<td>
+
+<button
+className="scw-delete-btn"
+onClick={()=>confirmDelete(item.id)}
+>
+
+<FaTrash/> Delete
+
+</button>
+
+</td>
+
+</tr>
+
+))
+
+)}
+
+</tbody>
+
+</table>
+
+<div className="scw-pagination">
+
+{Array.from({length:totalPages},(_,index)=>(
+
+<button
+
+key={index}
+
+className={
+currentPage===index+1
+?
+"scw-page-btn active"
+:
+"scw-page-btn"
+}
+
+onClick={()=>setCurrentPage(index+1)}
+
+>
+
+{index+1}
+
+</button>
+
+))}
+
+</div>
+
+{showConfirm &&(
+
+<div className="scw-modal">
+
+<div className="scw-modal-box">
+
+<h3>Delete Confirmation</h3>
+
+<p>Are you sure you want to delete this record?</p>
+
+<div className="scw-modal-actions">
+
+<button
+className="scw-cancel-btn"
+onClick={()=>setShowConfirm(false)}
+>
+Cancel
+</button>
+
+<button
+className="scw-confirm-btn"
+onClick={handleDelete}
+>
+Delete
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+)}
+
+</div>
+
+);
+
 };
 
 export default SubConsumableWorkTable;

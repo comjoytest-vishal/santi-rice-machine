@@ -1,11 +1,23 @@
-import React, { useEffect, useState } from "react";
 
-const SubConsumableWork = () => {
+import { useState, useEffect } from "react";
+import Select from "react-select";
+
+import {
+  FiPlus,
+  FiSave,
+  FiXCircle,
+  FiBox
+} from "react-icons/fi";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import "../css/subConsumableWork.css";
+
+function SubConsumableWork() {
+
   const [allConsumables, setAllConsumables] = useState([]);
-  const [search, setSearch] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
-
   const [subConsumables, setSubConsumables] = useState([""]);
 
   const FETCH_URL =
@@ -14,207 +26,210 @@ const SubConsumableWork = () => {
   const SAVE_URL =
     "http://localhost/santi-rice-machine/backend/add_sub_consumable_work.php";
 
-  /* ======================
-     FETCH DATA FROM API
-  ====================== */
+  /* ---------------- FETCH DATA ---------------- */
+
   useEffect(() => {
+
     fetch(FETCH_URL)
       .then((res) => res.json())
       .then((data) => {
+
         if (data.success) {
-          setAllConsumables(data.data);
+
+          const options = data.data.map((item) => ({
+            value: item.id,
+            label: item.sub_name
+          }));
+
+          setAllConsumables(options);
+
         }
-      })
-      .catch((err) => console.error(err));
+
+      });
+
   }, []);
 
-  /* ======================
-     HANDLE SEARCH
-  ====================== */
-  const handleSearch = (value) => {
-    setSearch(value);
+  /* ---------------- ADD FIELD ---------------- */
 
-    if (value.length > 0) {
-      const filtered = allConsumables.filter((item) =>
-        item.sub_name.toLowerCase().includes(value.toLowerCase())
-      );
-
-      setSuggestions(filtered);
-    } else {
-      setSuggestions([]);
-    }
-  };
-
-  /* ======================
-     SELECT SUGGESTION
-  ====================== */
-  const selectSuggestion = (item) => {
-    setSelectedItem(item);
-    setSearch(item.sub_name);
-    setSuggestions([]);
-  };
-
-  /* ======================
-     HANDLE INPUT CHANGE
-  ====================== */
-  const handleInputChange = (index, value) => {
-    const updated = [...subConsumables];
-    updated[index] = value;
-    setSubConsumables(updated);
-  };
-
-  /* ======================
-     ADD NEW INPUT
-  ====================== */
   const addField = () => {
+
     setSubConsumables([...subConsumables, ""]);
+
   };
 
-  /* ======================
-     REMOVE INPUT
-  ====================== */
+  /* ---------------- REMOVE FIELD ---------------- */
+
   const removeField = (index) => {
+
     const updated = subConsumables.filter((_, i) => i !== index);
     setSubConsumables(updated);
+
   };
 
-  /* ======================
-     SAVE DATA TO SERVER
-  ====================== */
-  const handleSave = async () => {
+  /* ---------------- CHANGE INPUT ---------------- */
+
+  const handleInputChange = (index, value) => {
+
+    const updated = [...subConsumables];
+    updated[index] = value;
+
+    setSubConsumables(updated);
+
+  };
+
+  /* ---------------- SAVE ---------------- */
+
+  const handleSave = async (e) => {
+
+    e.preventDefault();
+
     if (!selectedItem) {
-      alert("Please select a consumable first");
+      toast.error("Please select a consumable first");
       return;
     }
 
     const filtered = subConsumables.filter((s) => s.trim() !== "");
 
     if (filtered.length === 0) {
-      alert("Please enter at least one sub consumable");
+      toast.warning("Please enter at least one sub consumable");
       return;
     }
 
     try {
+
       const response = await fetch(SAVE_URL, {
+
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
+
         body: JSON.stringify({
-          parent_id: selectedItem.id,
-          sub_consumables: filtered,
-        }),
+          parent_id: selectedItem.value,
+          sub_consumables: filtered
+        })
+
       });
 
       const data = await response.json();
 
       if (data.success) {
-        alert("Sub consumables saved successfully");
+
+        toast.success("Saved Successfully");
 
         setSubConsumables([""]);
-        setSearch("");
         setSelectedItem(null);
+
       } else {
-        alert("Error: " + data.message);
+
+        toast.error(data.message);
+
       }
-    } catch (error) {
-      console.error(error);
-      alert("Server error");
+
+    } catch {
+
+      toast.error("Server Error");
+
     }
+
   };
 
   return (
-    <div style={{ width: "450px", margin: "40px auto", fontFamily: "Arial" }}>
-      <h2>Sub Consumable Work</h2>
 
-      {/* SEARCH INPUT */}
-      <input
-        type="text"
-        placeholder="Search consumable..."
-        value={search}
-        onChange={(e) => handleSearch(e.target.value)}
-        style={{ width: "100%", padding: "8px" }}
-      />
+    <div className="machine-wrapper">
 
-      {/* SUGGESTIONS */}
-      {suggestions.length > 0 && (
-        <ul
-          style={{
-            border: "1px solid #ccc",
-            listStyle: "none",
-            padding: 0,
-            marginTop: 0,
-          }}
-        >
-          {suggestions.map((item) => (
-            <li
-              key={item.id}
-              onClick={() => selectSuggestion(item)}
-              style={{
-                padding: "8px",
-                cursor: "pointer",
-                borderBottom: "1px solid #eee",
-              }}
-            >
-              {item.sub_name}
-            </li>
-          ))}
-        </ul>
-      )}
+      <ToastContainer position="top-right" autoClose={2500} />
 
-      {/* MULTIPLE INPUT FIELDS */}
-      {selectedItem && (
-        <div style={{ marginTop: "20px" }}>
-          <h4>Selected: {selectedItem.sub_name}</h4>
+      <div className="machine-card">
+
+        <form className="machine-form" onSubmit={handleSave}>
+
+          {/* SELECT CONSUMABLE */}
+
+          <div className="form-group">
+
+            <label>
+              <FiBox className="input-icon" />
+              Select Consumable
+            </label>
+
+            <Select
+              options={allConsumables}
+              value={selectedItem}
+              onChange={setSelectedItem}
+              placeholder="Select consumable..."
+              isClearable
+            />
+
+          </div>
+
+          {/* SUB CONSUMABLES */}
 
           {subConsumables.map((sub, index) => (
-            <div key={index} style={{ display: "flex", marginBottom: "8px" }}>
-              <input
-                type="text"
-                placeholder="Enter sub consumable"
-                value={sub}
-                onChange={(e) => handleInputChange(index, e.target.value)}
-                style={{ flex: 1, padding: "8px" }}
-              />
 
-              {index !== 0 && (
-                <button
-                  onClick={() => removeField(index)}
-                  style={{ marginLeft: "5px" }}
-                >
-                  ❌
-                </button>
-              )}
+            <div className="form-group" key={index}>
+
+              <label>
+                Sub Consumable {index + 1}
+              </label>
+
+              <div style={{ display: "flex", gap: "10px" }}>
+
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Enter sub consumable"
+                  value={sub}
+                  onChange={(e) =>
+                    handleInputChange(index, e.target.value)
+                  }
+                />
+
+                {index !== 0 && (
+
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => removeField(index)}
+                  >
+                    <FiXCircle />
+                  </button>
+
+                )}
+
+              </div>
+
             </div>
+
           ))}
 
+          {/* ADD BUTTON */}
+
           <button
+            type="button"
+            className="btn btn-secondary"
             onClick={addField}
-            style={{
-              marginTop: "5px",
-              padding: "6px 12px",
-              cursor: "pointer",
-            }}
+            style={{ marginBottom: "15px" }}
           >
-            + Add More
+            <FiPlus />
+            <span>Add More</span>
           </button>
 
-          <br />
+          {/* SAVE BUTTON */}
 
-          <button
-            onClick={handleSave}
-            style={{
-              marginTop: "15px",
-              padding: "8px 15px",
-              cursor: "pointer",
-            }}
-          >
-            Save All
+          <button type="submit" className="btn btn-primary">
+
+            <FiSave />
+            <span>Save All</span>
+
           </button>
-        </div>
-      )}
+
+        </form>
+
+      </div>
+
     </div>
+
   );
-};
+
+}
 
 export default SubConsumableWork;

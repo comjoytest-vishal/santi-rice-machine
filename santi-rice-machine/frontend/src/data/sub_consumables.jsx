@@ -1,21 +1,28 @@
 import React, { useState } from "react";
+import "../css/subconsumables.css";
+
+import { FaTools } from "react-icons/fa";
+import { FiTag, FiXCircle } from "react-icons/fi";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SubConsumablesForm = () => {
   const [subName, setSubName] = useState("");
-  const [message, setMessage] = useState("");
 
-  const BASE_URL = "http://localhost/santi-rice-machine/backend/add_sub_consumable.php";
+  const BASE_URL =
+    "http://localhost/santi-rice-machine/backend/add_sub_consumable.php";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!subName.trim()) {
-      setMessage("Sub Consumable name is required");
+      toast.warning("Sub Consumable name is required");
       return;
     }
 
     try {
-      const response = await fetch(BASE_URL, {   // ✅ FIXED HERE
+      const response = await fetch(BASE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,36 +35,64 @@ const SubConsumablesForm = () => {
       const result = await response.json();
 
       if (result.success) {
-        setMessage("Sub Consumable Added Successfully");
+        toast.success("Sub Consumable Added Successfully");
         setSubName("");
+      } else if (result.message === "EXISTS") {
+        toast.error("Sub Consumable already exists");
       } else {
-        setMessage(result.message || "Insert Failed");
+        toast.error(result.message || "Insert Failed");
       }
     } catch (error) {
-      console.error("Error:", error);
-      setMessage("Server Error");
+      toast.error("Server Error");
     }
   };
 
+  const handleClear = () => {
+    setSubName("");
+    toast.info("Form Cleared");
+  };
+
   return (
-    <div style={{ padding: "20px", maxWidth: "400px" }}>
-      <h2>Add Sub Consumable</h2>
+    <div className="sub-page">
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={subName}
-          onChange={(e) => setSubName(e.target.value)}
-          placeholder="Enter Sub Consumable Name"
-          required
-        />
+      <div className="sub-card">
 
-        <br /><br />
+        <form onSubmit={handleSubmit}>
 
-        <button type="submit">Save</button>
-      </form>
+          <label className="sub-label">
+            <FiTag /> Sub Consumable Name
+          </label>
 
-      {message && <p style={{ marginTop: "10px" }}>{message}</p>}
+          <input
+            type="text"
+            className="sub-input"
+            value={subName}
+            onChange={(e) => setSubName(e.target.value)}
+            placeholder="Enter sub consumable (e.g., Bolt)"
+          />
+
+          <div className="sub-buttons">
+
+            <button type="submit" className="save-btn">
+              <FaTools /> Save
+            </button>
+
+            <button
+              type="button"
+              className="clear-btn"
+              onClick={handleClear}
+            >
+              <FiXCircle /> Clear
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+      <ToastContainer position="top-right" autoClose={3000} />
+
     </div>
   );
 };
